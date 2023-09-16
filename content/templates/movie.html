@@ -1,0 +1,133 @@
+{% block content %}
+  <h1>Create Movie</h1>
+
+  <form id="upload-form" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="hidden" name="image_signed_url" id="image-signed-url" >
+    <input type="hidden" name="video_signed_url" id="video-signed-url" >
+    
+    <input type="submit">
+
+  </form>
+
+  <script>
+    uploadForm = document.querySelector('#upload-form')
+    uploadForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const csrfToken = document.querySelector('input[name = "csrfmiddlewaretoken"]').value;
+      const imageFile = document.querySelector('#id_image').files[0];
+      const imageFilename = imageFile.name;
+      const videoFile = document.querySelector('#id_movie').files[0];
+      const videoFilename = videoFile.name;
+
+      const formData = new FormData();
+      formData.append('image', imageFilename);
+      formData.append('movie', videoFilename);
+
+      console.log(formData.get('image')); 
+      console.log(formData.get('movie'));
+      
+      try {
+        response = await fetch('',
+          {
+            method : 'POST',
+            headers: {
+              'X-CSRFToken': csrfToken
+            },
+            body:formData  
+          });
+          if(response.ok){
+            console.log("Upload Successfully")
+          }
+          else{
+            throw new Error("Error uploading")
+          }
+      } catch (error) {
+        console.log(error)
+      }
+
+      const { image_signed_url, video_signed_url } = await response.json();
+
+      const imageSignedUrl = document.querySelector('#image-signed-url').value = image_signed_url
+      const videoSignedUrl = document.querySelector('#video-signed-url').value = video_signed_url
+      console.log(imageSignedUrl,videoSignedUrl)
+
+      try {
+        const [imageResponse, videoResponse] = await Promise.all([
+          uploadImage(imageSignedUrl, imageFile, csrfToken),
+          uploadVideo(videoSignedUrl, videoFile, csrfToken),
+          
+        ]);
+
+        if (!imageResponse.ok || !videoResponse.ok) {
+          throw new Error('Error uploading files');
+        }
+        console.log(imageResponse)
+        document.querySelector('form').submit();
+      }
+      catch (error) {
+        console.error(error);
+        // handle error
+      }
+    });
+
+  function uploadImage(imageSignedUrl, imageFile) {
+    return new Promise((resolve, reject) => {
+      var xhr = new XMLHttpRequest();
+      xhr.open("PUT", imageSignedUrl);
+      xhr.setRequestHeader("Content-Type", "image/jpeg");
+      
+    
+      xhr.onload = function () {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve(xhr.response);
+        } else {
+          reject({
+            status: xhr.status,
+            statusText: xhr.statusText,
+          });
+        }
+      };
+
+    xhr.onerror = function () {
+      reject({
+        status: xhr.status,
+        statusText: xhr.statusText,
+      });
+    };
+
+    xhr.send(imageFile);
+    });
+  }
+
+  function uploadVideo(videoSignedUrl, videoFile) {
+      return new Promise((resolve, reject) => {
+      var xhr = new XMLHttpRequest();
+      xhr.open("PUT", videoSignedUrl);
+      xhr.setRequestHeader("Content-Type", "video/mp4");
+      /*xhr.setRequestHeader("X-Goog-Content-Length-Range", "1,1000000000000");*/
+
+      xhr.onload = function () {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve(xhr.response);
+        } else {
+          reject({
+            status: xhr.status,
+            statusText: xhr.statusText,
+          });
+        }
+      };
+
+      xhr.onerror = function () {
+        reject({
+          status: xhr.status,
+          statusText: xhr.statusText,
+        });
+      };
+
+      xhr.send(videoFile);
+    });
+      }
+  </script>
+{% endblock %}

@@ -1,0 +1,18 @@
+[
+    {
+      "origin": ["*"],
+      "method": ["*"],
+      "responseHeader": ["Content-Type", "Access-Control-Allow-Origin", "X-Goog-Content-Length-Range"],
+      "maxAgeSeconds": 3600
+    },
+
+    {        
+      "origin": ["http://127.0.0.1:8000"],
+      "method": ["PUT", "POST"],
+      "responseHeader": ["Content-Type", "Access-Control-Allow-Origin", "X-Goog-Content-Length-Range"],
+      "maxAgeSeconds": 3600
+    }
+
+
+    
+]

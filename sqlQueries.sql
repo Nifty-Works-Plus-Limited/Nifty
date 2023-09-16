@@ -1,0 +1,1 @@
+ALTER TABLE u288777225_niftyvod.content_content MODIFY COLUMN episode VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL;

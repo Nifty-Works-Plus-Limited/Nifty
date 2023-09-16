@@ -1,0 +1,13 @@
+.venv
+.env
+.vscode
+.idea
+media_cdn
+nwplustv-bbc5a-84e0041c7cea.json 
+
+
+*.DS_Store
+**/__pycache__
+**/.DS_Store
+__pycache__
+
